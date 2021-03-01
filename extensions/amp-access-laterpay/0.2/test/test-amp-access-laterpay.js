@@ -71,7 +71,7 @@ describes.fakeWin(
       articleTitle.id = 'laterpay-test-title';
       articleTitle.textContent = 'test title';
       document.body.appendChild(articleTitle);
-
+ESD
       vendor = new LaterpayVendor(accessService, accessSource);
       xhrMock = env.sandbox.mock(vendor.xhr_);
     });
