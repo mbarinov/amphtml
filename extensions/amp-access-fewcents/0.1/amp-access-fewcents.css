@@ -28,20 +28,34 @@
   position: relative;
   box-sizing: border-box;
 
-  box-shadow: 1px 2px 2px 0px rgba(00,00,00, 0.25);
-  border-radius: 30px;
-  border: 1px solid #606060;
-
   background: #FFFFFF;
-  /*padding: 30px;*/
-  margin: 0 auto;
-  max-width: 800px;
 }
 
 .amp-access-fewcents-container {
   padding: 30px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  max-width: 800px;
+  margin: 0 auto;
+  box-shadow: 1px 2px 2px 0px rgba(00,00,00, 0.25);
+  border-radius: 30px;
+  border: 1px solid #606060;
+}
+
+.amp-access-fewcents-container-error {
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.amp-access-fewcents-error {
+  font-family: Leelawadee UI;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 19px;
+  line-height: 26px;
+
+  text-align: center;
+  color: #EF7D7C;
 }
 
 .amp-access-fewcents-left-container {
@@ -50,6 +64,7 @@
 }
 
 .amp-access-fewcents-left-logo-container {
+  display: block;
   height: 100%;
   background-image: url(http://localhost:9000/logo.svg);
   background-repeat: no-repeat;
@@ -60,12 +75,6 @@
   margin: 0 30px;
 }
 
-/*@media (min-width: 420px) {*/
-/*  .amp-access-fewcents {*/
-/*    width: 420px;*/
-/*  }*/
-/*}*/
-
 .amp-access-fewcents-fc-logo-container {
   font-family: Arial;
   font-size: 18px;
@@ -73,7 +82,12 @@
   line-height: 21px;
   color: #237AFF;
   text-align: right;
+  text-decoration: none;
 }
+
+.amp-access-fewcents-fc-logo-container:hover {
+   text-decoration: underline;
+ }
 
 .amp-access-fewcents-description-container {
   padding: 10px;

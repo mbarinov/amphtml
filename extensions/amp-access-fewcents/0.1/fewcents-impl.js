@@ -36,6 +36,7 @@ const AUTHORIZATION_TIMEOUT = 3000;
 const DEFAULT_MESSAGES = {
   defaultButton: 'Unlock Article',
   alreadyPurchasedLink: 'I already bought this',
+  errorMessage: 'Something went wrong. Please try again later.'
 };
 
 /**
@@ -135,7 +136,6 @@ export class FewcentsVendor {
     this.purchaseButton_ = null;
 
     /** @private {string} */
-    this.currentLocale_ = this.fewcentsConfig_['locale'] || 'en';
 
     /** @private {!JsonObject} */
     this.i18n_ = /** @type {!JsonObject} */ (Object.assign(
@@ -191,8 +191,10 @@ export class FewcentsVendor {
       },
       (err) => {
         if (!err || !err.response) {
-          throw err;
+          this.emptyContainer_().then(this.renderErrorMessage_().bind(this));
+          return {access: false};
         }
+
         const {response} = err;
         if (response.status !== 402) {
           throw err;
@@ -353,6 +355,28 @@ export class FewcentsVendor {
 
     dialogContainer.appendChild(this.innerContainer_);
     this.containerEmpty_ = false;
+  }
+
+  /**
+   * @private
+   */
+  renderErrorMessage_() {
+    const dialogContainer = this.getContainer_();
+    this.innerContainer_ = this.createElement_('div');
+    this.innerContainer_.className = `${TAG}-container ${TAG}-container-error`;
+
+    const errorMessage = this.createElement_('div');
+    errorMessage.className = `${TAG}-error`;
+    errorMessage.textContent = this.i18n_.errorMessage;
+    this.innerContainer_.appendChild(errorMessage);
+
+    const fcLogoContainer = this.createElement_('a');
+    fcLogoContainer.className = TAG + '-fc-logo-container';
+    fcLogoContainer.textContent = 'Few¢ents';
+    fcLogoContainer.href = 'https://fewcents.co';
+    this.innerContainer_.appendChild(fcLogoContainer);
+
+    dialogContainer.appendChild(this.innerContainer_);
   }
 
   /**
