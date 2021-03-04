@@ -10,10 +10,8 @@
     {
       "vendor": "fewcents",
       "fewcents": {
-        "articleTitleSelector": ".content-container > header > h1",
-        "localeMessages": {
-          "header": "Fewcents"
-        }
+        "accessKey": "test_key",
+        "category": "premium"
       }
     }
   </script>
@@ -140,41 +138,6 @@
   <script async src="https://cdn.ampproject.org/v0.js"></script>
 </head>
 <body>
-<amp-analytics type="googleanalytics" id="analytics2">
-  <script type="application/json">
-    {
-      "vars": {
-        "account": "UA-YYYY-Y"
-      },
-      "triggers": {
-        "defaultPageview": {
-          "on": "visible",
-          "request": "pageview",
-          "vars": {
-            "title": "Example Pageview"
-          }
-        },
-        "authorizationReceived": {
-          "on": "access-authorization-received",
-          "request": "event",
-          "vars": {
-            "eventCategory": "amp-access",
-            "eventAction": "access-authorization-received"
-          }
-        },
-        "pingbackSent": {
-          "on": "access-pingback-sent",
-          "request": "event",
-          "vars": {
-            "eventCategory": "amp-access",
-            "eventAction": "access-pingback-sent"
-          }
-        }
-      }
-    }
-  </script>
-</amp-analytics>
-
 <main role="main">
   <article>
     <div class="content-container">

@@ -16,8 +16,16 @@
 
 import {FewcentsVendor} from './fewcents-impl';
 import {Services} from '../../../src/services';
+import { isExperimentOn } from "../../../src/experiments";
+
+const EXPERIMENT = 'amp-access-fewcents';
 
 AMP.extension('amp-access-fewcents', '0.2', function (AMP) {
+  if(!isExperimentOn(AMP.win, EXPERIMENT)) {
+    return;
+  }
+
+  // console.log("debug", this, AMP);
   AMP.registerServiceForDoc(
     'fewcents',
     /**

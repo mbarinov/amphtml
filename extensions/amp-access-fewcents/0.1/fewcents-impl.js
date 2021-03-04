@@ -18,13 +18,24 @@ import {CSS} from '../../../build/amp-access-fewcents-0.1.css';
 import {Services} from '../../../src/services';
 import {dev, user} from '../../../src/log';
 import {dict} from '../../../src/utils/object';
+import {getMode} from '../../../src/mode';
 import {installStylesForDoc} from '../../../src/style-installer';
 import {listen} from '../../../src/event-helper';
 import {removeChildren} from '../../../src/dom';
 
+import {isExperimentOn} from '../../../src/experiments';
+// import {pureUserAssert as userAssert} from '../../../src/core/assert';
+
+/** @const */
+const EXPERIMENT = 'amp-access-fewcents';
+
+/** @const */
 const TAG = 'amp-access-fewcents';
 
-const CONFIG_URL = 'http://localhost:9000';
+const CONFIG_URL =
+  getMode().localDev || getMode().development
+    ? 'http://localhost:9000'
+    : 'https://fewcents.co';
 
 const CONFIG_BASE_PATH =
   '/api/v1/amp/?' +
@@ -36,68 +47,25 @@ const AUTHORIZATION_TIMEOUT = 3000;
 const DEFAULT_MESSAGES = {
   defaultButton: 'Unlock Article',
   alreadyPurchasedLink: 'I already bought this',
-  errorMessage: 'Something went wrong. Please try again later.'
+  errorMessage: 'Something went wrong. Please try again later.',
 };
 
 /**
  * @typedef {{
- *   articleTitleSelector: string,
- *   configUrl: (string|undefined),
- *   articleId: (string|undefined),
- *   scrollToTopAfterAuth: (boolean|undefined),
- *   locale: (string|undefined),
+ *   accessKey: string,
+ *   category: (string|undefined),
  *   localeMessages: (Object|undefined),
- *   region: (string|undefined),
- *   sandbox: (boolean|undefined),
  * }}
  */
-let fewcentsConfig_0_2_Def; // eslint-disable-line google-camelcase/google-camelcase
+let fewcentsConfig_0_1_Def; // eslint-disable-line google-camelcase/google-camelcase
 
 /**
  * @typedef {{
  *   "amount": number,
  *   "currency": string,
- *   "payment_model": string,
  * }}
  */
 let PriceDef;
-
-/**
- * @typedef {{
- *   "unit": string,
- *   "value": number,
- * }}
- */
-let ExpiryDef;
-
-/**
- * @typedef {{
- *   title: string,
- *   description: string,
- *   sales_model: string,
- *   purchase_url: string,
- *   price: PriceDef,
- *   expiry: ExpiryDef,
- * }}
- */
-let PurchaseOption_0_2_Def; // eslint-disable-line google-camelcase/google-camelcase
-
-/**
- * @typedef {{
- *   identify_url: string,
- *   purchase_options: Array<PurchaseOption_0_2_Def>,
- * }}
- */
-let PurchaseConfig_0_2_Def; // eslint-disable-line google-camelcase/google-camelcase
-
-/**
- * @typedef {{
- *   singlePurchases: Array<PurchaseOption_0_2_Def>,
- *   timepasses: Array<PurchaseOption_0_2_Def>,
- *   subscriptions: Array<PurchaseOption_0_2_Def>,
- * }}
- */
-let PurchaseOptionsDef;
 
 /**
  * @implements {../../amp-access/0.1/access-vendor.AccessVendor}
@@ -114,7 +82,7 @@ export class FewcentsVendor {
     /** @const @private {!../../amp-access/0.1/amp-access-source.AccessSource} */
     this.accessSource_ = accessSource;
 
-    /** @const @private {!JsonObject} For shape see fewcentsConfig_0_2_Def */
+    /** @const @private {!JsonObject} For shape see fewcentsConfig_0_1_Def */
     this.fewcentsConfig_ = this.accessSource_.getAdapterConfig();
 
     /** @private {?JsonObject} For shape see PurchaseConfig_0_2_Def */
@@ -146,10 +114,21 @@ export class FewcentsVendor {
 
     /** @private {string} */
     this.purchaseConfigBaseUrl_ = this.getConfigUrl_() + CONFIG_BASE_PATH;
-    const articleId = this.fewcentsConfig_['articleId'];
-    if (articleId) {
+    const accessKey = this.fewcentsConfig_['accessKey'];
+    const category = this.fewcentsConfig_['category'];
+    if (accessKey) {
       this.purchaseConfigBaseUrl_ +=
-        '&article_id=' + encodeURIComponent(articleId);
+        '&access_key=' + encodeURIComponent(accessKey);
+    } else {
+      dev().error(
+        TAG,
+        'accessKey is required field. You can get it in the admin panel.'
+      );
+    }
+
+    if (category) {
+      this.purchaseConfigBaseUrl_ +=
+        '&category=' + encodeURIComponent(category);
     }
 
     /** @const @private {!../../../src/service/timer-impl.Timer} */
@@ -174,7 +153,7 @@ export class FewcentsVendor {
   }
 
   /**
-   * @return {!Promise<!JsonObject>}
+   * @return {Promise<{access: *} | {access: boolean}>}
    */
   authorize() {
     return this.getPurchaseConfig_().then(
@@ -205,8 +184,6 @@ export class FewcentsVendor {
           .then((responseJson) => {
             this.purchaseConfig_ = responseJson;
 
-            // empty before rendering, in case authorization is being called
-            // again with the same state
             this.emptyContainer_().then(this.renderPurchaseOverlay_.bind(this));
             return {access: false};
           });
@@ -291,6 +268,7 @@ export class FewcentsVendor {
    * @private
    */
   renderPurchaseOverlay_() {
+
     const dialogContainer = this.getContainer_();
     this.innerContainer_ = this.createElement_('div');
     this.innerContainer_.className = TAG + '-container';
@@ -324,7 +302,10 @@ export class FewcentsVendor {
 
     const price = this.createElement_('div');
     price.className = TAG + '-price';
-    price.textContent = `${new Intl.NumberFormat('en-EN', { style: 'currency', currency: this.purchaseConfig_?.purchase_options?.price?.currency }).format(this.purchaseConfig_?.purchase_options?.price?.amount)}/article`;
+    price.textContent = `${new Intl.NumberFormat('en-EN', {
+      style: 'currency',
+      currency: this.purchaseConfig_?.purchase_options?.price?.currency,
+    }).format(this.purchaseConfig_?.purchase_options?.price?.amount)}/article`;
 
     rightContainer.appendChild(description);
     rightContainer.appendChild(subDescription);
@@ -354,6 +335,7 @@ export class FewcentsVendor {
     rightContainer.appendChild(buttonsContainer);
 
     dialogContainer.appendChild(this.innerContainer_);
+
     this.containerEmpty_ = false;
   }
 
@@ -392,12 +374,6 @@ export class FewcentsVendor {
   }
 
   /**
-   * @param {!JsonObject} option Shape: PurchaseOption_0_2_Def
-   * @return {!Element}
-   * @private
-   */
-
-  /**
    * @param {string} href
    * @return {!Element}
    */
@@ -407,7 +383,7 @@ export class FewcentsVendor {
 
     button.textContent = this.i18n_['alreadyPurchasedLink'];
     this.alreadyPurchasedListener_ = listen(button, 'click', (ev) => {
-      this.handlePurchase_(ev, href, 'alreadyPurchased');
+      this.handlePurchase_(ev, href);
     });
 
     return button;
@@ -435,5 +411,23 @@ export class FewcentsVendor {
    */
   pingback() {
     return Promise.resolve();
+  }
+
+  /** @override */
+  buildCallback() {
+    user().assert(
+      isExperimentOn(this.win, EXPERIMENT),
+      `Experiment ${EXPERIMENT} is not turned on.`
+    );
+  }
+
+  /** @override */
+  layoutCallback() {
+    console.log("debug", isExperimentOn(this.win, EXPERIMENT));
+
+    user.assert(
+      isExperimentOn(this.win, EXPERIMENT),
+      `Experiment ${EXPERIMENT} is not turned on.`
+    );
   }
 }

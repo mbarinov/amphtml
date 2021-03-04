@@ -245,4 +245,9 @@ export const EXPERIMENTS = [
     name: 'To measure the CWV impact of ads idle rendering',
     spec: 'https://github.com/ampproject/amphtml/issues/31436',
   },
+  {
+    id: 'amp-access-fewcents',
+    name: 'Paywall for fewcents',
+    spec: 'https://github.com/ampproject/amphtml/issues/31854',
+  },
 ];
