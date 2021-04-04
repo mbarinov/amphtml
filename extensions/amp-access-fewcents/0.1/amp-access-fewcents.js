@@ -16,16 +16,15 @@
 
 import {FewcentsVendor} from './fewcents-impl';
 import {Services} from '../../../src/services';
-import { isExperimentOn } from "../../../src/experiments";
+import {isExperimentOn} from '../../../src/experiments';
+import {userAssert} from '../../../src/log';
 
-const EXPERIMENT = 'amp-access-fewcents';
+AMP.extension('amp-access-fewcents', '0.1', function (AMP) {
+  userAssert(
+    isExperimentOn(AMP.win, 'amp-access-fewcents'),
+    'amp-access-fewcents experiment is disabled.'
+  );
 
-AMP.extension('amp-access-fewcents', '0.2', function (AMP) {
-  if(!isExperimentOn(AMP.win, EXPERIMENT)) {
-    return;
-  }
-
-  // console.log("debug", this, AMP);
   AMP.registerServiceForDoc(
     'fewcents',
     /**

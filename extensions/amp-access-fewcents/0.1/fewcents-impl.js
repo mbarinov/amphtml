@@ -24,7 +24,6 @@ import {listen} from '../../../src/event-helper';
 import {removeChildren} from '../../../src/dom';
 
 import {isExperimentOn} from '../../../src/experiments';
-// import {pureUserAssert as userAssert} from '../../../src/core/assert';
 
 /** @const */
 const EXPERIMENT = 'amp-access-fewcents';
@@ -49,23 +48,6 @@ const DEFAULT_MESSAGES = {
   alreadyPurchasedLink: 'I already bought this',
   errorMessage: 'Something went wrong. Please try again later.',
 };
-
-/**
- * @typedef {{
- *   accessKey: string,
- *   category: (string|undefined),
- *   localeMessages: (Object|undefined),
- * }}
- */
-let fewcentsConfig_0_1_Def; // eslint-disable-line google-camelcase/google-camelcase
-
-/**
- * @typedef {{
- *   "amount": number,
- *   "currency": string,
- * }}
- */
-let PriceDef;
 
 /**
  * @implements {../../amp-access/0.1/access-vendor.AccessVendor}
@@ -99,11 +81,6 @@ export class FewcentsVendor {
 
     /** @private {?Node} */
     this.innerContainer_ = null;
-
-    /** @private {?Node} */
-    this.purchaseButton_ = null;
-
-    /** @private {string} */
 
     /** @private {!JsonObject} */
     this.i18n_ = /** @type {!JsonObject} */ (Object.assign(
@@ -268,7 +245,6 @@ export class FewcentsVendor {
    * @private
    */
   renderPurchaseOverlay_() {
-
     const dialogContainer = this.getContainer_();
     this.innerContainer_ = this.createElement_('div');
     this.innerContainer_.className = TAG + '-container';
@@ -416,17 +392,15 @@ export class FewcentsVendor {
   /** @override */
   buildCallback() {
     user().assert(
-      isExperimentOn(this.win, EXPERIMENT),
+      isExperimentOn(this.win, 'amp-access-fewcents'),
       `Experiment ${EXPERIMENT} is not turned on.`
     );
   }
 
   /** @override */
   layoutCallback() {
-    console.log("debug", isExperimentOn(this.win, EXPERIMENT));
-
     user.assert(
-      isExperimentOn(this.win, EXPERIMENT),
+      isExperimentOn(this.win, 'amp-access-fewcents'),
       `Experiment ${EXPERIMENT} is not turned on.`
     );
   }
